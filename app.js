@@ -5,8 +5,9 @@ const mysql = require('mysql');
 const path = require('path');
 const app = express();
 
-const {getHomePage} = require('./routes/index');
-const {registro} = require('./routes/user');
+const middleware = require('./middleware');
+const { getHomePage } = require('./routes/index');
+const { registro, login, guest } = require('./routes/user');
 // const {addPlayerPage, addPlayer, deletePlayer, editPlayer, editPlayerPage} = require('./routes/player');
 const port = 5000;
 const { check, validationResult } = require('express-validator/check')
@@ -53,15 +54,15 @@ app.post('/registro', [
     check('gender').isNumeric(),
     check('password').not().isEmpty(),
 ], registro);
-/*
-app.get('/add', addPlayerPage);
-app.get('/edit/:id', editPlayerPage);
-app.get('/delete/:id', deletePlayer);
-app.post('/add', addPlayer);
-app.post('/edit/:id', editPlayer);
-*/
 
-// set the app to listen on the port
+app.post('/login', [
+    check('email').not().isEmpty(),
+    check('password').not().isEmpty(),
+], login);
+
+app.get('/guest', middleware.ensureAuthenticated, guest);
+
+
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
 });
